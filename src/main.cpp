@@ -2,7 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+
 #include "HuffmanTree.h"
+#include "BitWriter.h"
 
 std::string readFile(const std::string& filename) {
     std::ifstream in(filename, std::ios::binary);
@@ -28,6 +30,7 @@ int main() {
     try {
         std::string inputFile = "data/input.txt";
         std::string outputFile = "data/output.txt";
+        std::string compressedFile = "data/compressed.bin";
 
         std::string text = readFile(inputFile);
 
@@ -44,11 +47,21 @@ int main() {
 
     std::cout << "Codes:\n";
     for (const auto& pair : codes) {
-        std::cout << pair.first << " : " << pair.second << std::endl;
+        std::cout << pair.first << " : " << pair.second << "\n";
     }
 
     std::string encoded = HuffmanTree::encodeText(text, codes);
     std::cout << "\nEncoded length in bits: " << encoded.size() << "\n";
+
+    BitWriter writer(compressedFile);
+
+    for (char bit : encoded) {
+        writer.writeBit(bit == '1');
+    }
+
+    writer.close();
+
+    std::cout << "Compressed data written to " << compressedFile << "\n";
 
     std::string decoded = HuffmanTree::decodeText(encoded, root);
     writeFile(outputFile, decoded);
