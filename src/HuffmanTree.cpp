@@ -2,8 +2,8 @@
 #include <queue>
 #include <vector>
 
-std::unordered_map<unsigned char, int> HuffmanTree::buildFrequency(const std::string& text) {
-    std::unordered_map<unsigned char, int> freq;
+std::map<unsigned char, int> HuffmanTree::buildFrequency(const std::string& text) {
+    std::map<unsigned char, int> freq;
 
     for (unsigned char ch : text) {
         freq[ch]++;
@@ -18,7 +18,7 @@ struct Compare {
     }
 };
 
-Node* HuffmanTree::buildTree(const std::unordered_map<unsigned char, int>& freq) {
+Node* HuffmanTree::buildTree(const std::map<unsigned char, int>& freq) {
     std::priority_queue<Node*, std::vector<Node*>, Compare> pq;
 
     for (const auto& pair : freq) {
