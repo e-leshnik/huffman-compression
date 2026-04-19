@@ -41,5 +41,4 @@
 *.dwo
 
 .vscode/
-data/output.txt
-data/compressed.bin
+data
