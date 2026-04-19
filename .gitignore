@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+.vscode/
+data/output.txt
+data/compressed.bin
