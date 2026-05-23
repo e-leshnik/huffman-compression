@@ -39,7 +39,7 @@ void writeBitsToFile(const std::string& filename, const std::string& bits) {
 
 void testExactlyOneByte() {
     std::string bits = "10110010";
-    std::string file = "data/test_bits_1.bin";
+    std::string file = "../data/test_bits_1.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
@@ -49,7 +49,7 @@ void testExactlyOneByte() {
 
 void testIncompleteLastByte() {
     std::string bits = "1011001";
-    std::string file = "data/test_bits_2.bin";
+    std::string file = "../data/test_bits_2.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
@@ -59,7 +59,7 @@ void testIncompleteLastByte() {
 
 void testSeveralBytes() {
     std::string bits = "101100100011011011001010";
-    std::string file = "data/test_bits_3.bin";
+    std::string file = "../data/test_bits_3.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
@@ -69,7 +69,7 @@ void testSeveralBytes() {
 
 void testAllZeros() {
     std::string bits = "0000000000000000";
-    std::string file = "data/test_bits_4.bin";
+    std::string file = "../data/test_bits_4.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
@@ -79,7 +79,7 @@ void testAllZeros() {
 
 void testAllOnes() {
     std::string bits = "1111111111111111";
-    std::string file = "data/test_bits_5.bin";
+    std::string file = "../data/test_bits_5.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
@@ -89,7 +89,7 @@ void testAllOnes() {
 
 void testAlternatingBits() {
     std::string bits = "010101010101010101010101";
-    std::string file = "data/test_bits_1.bin";
+    std::string file = "../data/test_bits_1.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
@@ -99,7 +99,7 @@ void testAlternatingBits() {
 
 void testSingleZeroBit() {
     std::string bits = "0";
-    std::string file = "data/test_bits_1.bin";
+    std::string file = "../data/test_bits_1.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
@@ -109,7 +109,7 @@ void testSingleZeroBit() {
 
 void testSingleOneBit() {
     std::string bits = "1";
-    std::string file = "data/test_bits_1.bin";
+    std::string file = "../data/test_bits_1.bin";
 
     writeBitsToFile(file, bits);
     std::string result = readBitsFromFile(file, static_cast<int>(bits.size()));
