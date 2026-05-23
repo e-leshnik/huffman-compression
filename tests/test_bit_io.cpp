@@ -27,6 +27,7 @@ std::string readBitsFromFile(const std::string& filename, int bitCount) {
 
 void writeBitsToFile(const std::string& filename, const std::string& bits) {
     std::ofstream out(filename, std::ios::binary);
+    assert(out.is_open());
     BitWriter writer(out);
 
     for (char bit : bits) {

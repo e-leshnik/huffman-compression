@@ -17,6 +17,7 @@ std::string readFile(const std::string& filename) {
 
 void writeFile(const std::string& filename, const std::string& data) {
     std::ofstream out(filename, std::ios::binary);
+    assert(out.is_open());
     out << data;
 }
 

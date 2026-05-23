@@ -1,32 +1,29 @@
 # Prerequisites
 *.d
 
-# Compiled Object files
+# Compiled object files
 *.slo
 *.lo
 *.o
 *.obj
 
-# Precompiled Headers
+# Precompiled headers
 *.gch
 *.pch
 
 # Linker files
 *.ilk
 
-# Debugger Files
+# Debugger files
 *.pdb
+*.dwo
 
-# Compiled Dynamic libraries
+# Dynamic libraries
 *.so
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
+# Static libraries
 *.lai
 *.la
 *.a
@@ -37,8 +34,24 @@
 *.out
 *.app
 
-# debug information files
-*.dwo
-
+# IDE / editor
 .vscode/
-data
+.idea/
+*.swp
+*~
+
+# Build system
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Generated data files
+data/output.txt
+data/compressed.bin
+data/result.txt
+data/test_output_*.bin
+data/test_result_*.txt
+data/test_result_*.bin
+data/test_bits_*.bin
