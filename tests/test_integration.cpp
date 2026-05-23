@@ -17,6 +17,7 @@ std::string readFile(const std::string& filename) {
 
 void writeFile(const std::string& filename, const std::string& data) {
     std::ofstream out(filename, std::ios::binary);
+    assert(out.is_open());
     out << data;
 }
 
@@ -45,14 +46,14 @@ void testBinaryFullCycle(const std::vector<unsigned char>& bytes, const std::str
 }
 
 int main() {
-    testFullCycle("abracadabra", "../data/test_input_1.txt", "../data/test_output_1.bin", "../data/test_result_1.txt");
-    testFullCycle("aaaaaaa", "../data/test_input_2.txt", "../data/test_output_2.bin", "../data/test_result_2.txt");
-    testFullCycle("abababab", "../data/test_input_3.txt", "../data/test_output_3.bin", "../data/test_result_3.txt");
-    testFullCycle("text with spaces", "../data/test_input_4.txt", "../data/test_output_4.bin", "../data/test_result_4.txt");
-    testFullCycle("line1\nline2\nline3", "../data/test_input_5.txt", "../data/test_output_5.bin", "../data/test_result_5.txt");
-    testFullCycle("12345!!!???...,,,000", "../data/test_input_6.txt", "../data/test_output_6.bin", "../data/test_result_6.txt");
-    testFullCycle(std::string(5000, 'a') + "bcdefghijklmnopqrstuvwxyz", "../data/test_input_7.txt", "../data/test_output_7.bin", "../data/test_result_7.txt");
-    testBinaryFullCycle({0x00, 0x01, 0x02, 0x03, 0xff, 0x80, 0x7f, 0x00, 0x55, 0xaa}, "../data/test_input_8.bin", "../data/test_output_8.bin", "../data/test_result_8.bin");
+    testFullCycle("abracadabra", "data/test_input_1.txt", "data/test_output_1.bin", "data/test_result_1.txt");
+    testFullCycle("aaaaaaa", "data/test_input_2.txt", "data/test_output_2.bin", "data/test_result_2.txt");
+    testFullCycle("abababab", "data/test_input_3.txt", "data/test_output_3.bin", "data/test_result_3.txt");
+    testFullCycle("text with spaces", "data/test_input_4.txt", "data/test_output_4.bin", "data/test_result_4.txt");
+    testFullCycle("line1\nline2\nline3", "data/test_input_5.txt", "data/test_output_5.bin", "data/test_result_5.txt");
+    testFullCycle("12345!!!???...,,,000", "data/test_input_6.txt", "data/test_output_6.bin", "data/test_result_6.txt");
+    testFullCycle(std::string(5000, 'a') + "bcdefghijklmnopqrstuvwxyz", "data/test_input_7.txt", "data/test_output_7.bin", "data/test_result_7.txt");
+    testBinaryFullCycle({0x00, 0x01, 0x02, 0x03, 0xff, 0x80, 0x7f, 0x00, 0x55, 0xaa}, "data/test_input_8.bin", "data/test_output_8.bin", "data/test_result_8.bin");
     testBinaryFullCycle(
         []{
             std::vector<unsigned char> bytes;
@@ -61,7 +62,7 @@ int main() {
             }
             return bytes;
         }(),
-        "../data/test_input_9.bin", "../data/test_output_9.bin", "../data/test_result_9.bin"
+        "data/test_input_9.bin", "data/test_output_9.bin", "data/test_result_9.bin"
     );
 
     std::cout << "Integration tests passed\n";
