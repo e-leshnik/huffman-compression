@@ -8,19 +8,19 @@ struct Node {
   Node *right;
 
   // Конструктор для листа
-  Node(unsigned char s, int f) {
-    symbol = s;
-    freq = f;
+  Node(unsigned char symbolValue, int frequency) {
+    symbol = symbolValue;
+    freq = frequency;
     left = nullptr;
     right = nullptr;
   }
 
   // Конструктор для внутреннего узла
-  Node(Node *l, Node *r) {
+  Node(Node *leftChild, Node *rightChild) {
     symbol = 0;
-    freq = l->freq + r->freq;
-    left = l;
-    right = r;
+    freq = leftChild->freq + rightChild->freq;
+    left = leftChild;
+    right = rightChild;
   }
 };
 

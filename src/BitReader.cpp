@@ -1,7 +1,7 @@
 #include "BitReader.h"
 
 BitReader::BitReader(std::ifstream &inputStream)
-    : in(&inputStream), buffer(0), bitCount(0) {}
+    : in(&inputStream) {}
 
 bool BitReader::readBit(bool &bit) {
   if (bitCount == 0) {

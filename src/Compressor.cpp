@@ -7,10 +7,10 @@
 
 void Compressor::compress(const std::string &inputFile,
                           const std::string &outputFile) {
-  std::ifstream in(inputFile, std::ios::binary);
-  std::string text((std::istreambuf_iterator<char>(in)),
+  std::ifstream inputStream(inputFile, std::ios::binary);
+  std::string text((std::istreambuf_iterator<char>(inputStream)),
                    std::istreambuf_iterator<char>());
-  in.close();
+  inputStream.close();
 
   auto freq = HuffmanTree::buildFrequency(text);
   Node *root = HuffmanTree::buildTree(freq);
@@ -19,7 +19,7 @@ void Compressor::compress(const std::string &inputFile,
   std::string encoded = HuffmanTree::encodeText(text, codes);
   std::ofstream out(outputFile, std::ios::binary);
 
-  int size = freq.size();
+  int size = static_cast<int>(freq.size());
   out.write(reinterpret_cast<char *>(&size), sizeof(int));
 
   for (const auto &pair : freq) {
@@ -28,7 +28,7 @@ void Compressor::compress(const std::string &inputFile,
     out.write(reinterpret_cast<const char *>(&pair.second), sizeof(int));
   }
 
-  int bitLength = encoded.size();
+  int bitLength = static_cast<int>(encoded.size());
   out.write(reinterpret_cast<char *>(&bitLength), sizeof(int));
 
   BitWriter writer(out);

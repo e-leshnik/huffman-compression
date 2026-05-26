@@ -81,7 +81,7 @@ std::string HuffmanTree::decodeText(const std::string &encoded, Node *root) {
   }
   // случай когда только один уникальный символ
   if (root->left == nullptr && root->right == nullptr) {
-    return std::string(encoded.size(), root->symbol);
+    return std::string(encoded.size(), static_cast<char>(root->symbol));
   }
 
   std::string decoded;
@@ -92,10 +92,16 @@ std::string HuffmanTree::decodeText(const std::string &encoded, Node *root) {
       current = current->left;
     } else if (bit == '1') {
       current = current->right;
+    } else {
+        continue;
+    }
+
+    if (current == nullptr) {
+        return "";
     }
 
     if (current->left == nullptr && current->right == nullptr) {
-      decoded += current->symbol;
+      decoded += static_cast<char>(current->symbol);
       current = root;
     }
   }

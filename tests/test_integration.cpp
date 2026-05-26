@@ -75,6 +75,7 @@ int main() {
   testBinaryFullCycle(
       [] {
         std::vector<unsigned char> bytes;
+        bytes.reserve(256);
         for (int i = 0; i < 256; i++) {
           bytes.push_back(static_cast<unsigned char>(i));
         }
