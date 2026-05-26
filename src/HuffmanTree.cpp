@@ -93,11 +93,11 @@ std::string HuffmanTree::decodeText(const std::string &encoded, Node *root) {
     } else if (bit == '1') {
       current = current->right;
     } else {
-        continue;
+      continue;
     }
 
     if (current == nullptr) {
-        return "";
+      return "";
     }
 
     if (current->left == nullptr && current->right == nullptr) {

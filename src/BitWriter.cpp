@@ -1,7 +1,6 @@
 #include "BitWriter.h"
 
-BitWriter::BitWriter(std::ofstream &outputStream)
-    : out(&outputStream) {}
+BitWriter::BitWriter(std::ofstream &outputStream) : out(&outputStream) {}
 
 void BitWriter::writeBit(bool bit) {
   buffer <<= 1;
