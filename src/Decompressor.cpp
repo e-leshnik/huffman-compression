@@ -49,4 +49,5 @@ void Decompressor::decompress(const std::string &inputFile,
   out.close();
 
   in.close();
+  HuffmanTree::deleteTree(root);
 }

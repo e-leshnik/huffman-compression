@@ -39,4 +39,5 @@ void Compressor::compress(const std::string &inputFile,
 
   writer.flush();
   out.close();
+  HuffmanTree::deleteTree(root);
 }

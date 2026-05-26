@@ -42,6 +42,7 @@
 
 # Build system
 build/
+build-sanitize/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
