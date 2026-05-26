@@ -34,3 +34,27 @@ jobs:
 
       - name: Run integration tests
         run: ./build/test_integration
+  sanitize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ clang-format
+
+      - name: Configure with sanitizers
+        run: cmake -S . -B build-sanitize -DENABLE_SANITIZERS=ON
+
+      - name: Build with sanitizers
+        run: cmake --build build-sanitize
+
+      - name: Run Huffman unit tests with sanitizers
+        run: ./build-sanitize/test_huffman
+
+      - name: Run bit I/O tests with sanitizers
+        run: ./build-sanitize/test_bit_io
+
+      - name: Run integration tests with sanitizers
+        run: ./build-sanitize/test_integration
