@@ -5,13 +5,13 @@
 
 class BitReader {
 private:
-    std::ifstream* in;
-    unsigned char buffer;
-    int bitCount;
+  std::ifstream *in;
+  unsigned char buffer{0};
+  int bitCount{0};
 
 public:
-    BitReader(std::ifstream& inputStream);
-    bool readBit(bool& bit);
+  BitReader(std::ifstream &inputStream);
+  bool readBit(bool &bit);
 };
 
 #endif

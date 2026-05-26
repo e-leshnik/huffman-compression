@@ -14,8 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install CMake
-        run: sudo apt-get update && sudo apt-get install -y cmake g++
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ clang-format
+
+      - name: Check formatting
+        run: clang-format --dry-run --Werror src/*.cpp src/*.h tests/*.cpp
 
       - name: Configure
         run: cmake -S . -B build
@@ -31,3 +34,43 @@ jobs:
 
       - name: Run integration tests
         run: ./build/test_integration
+  sanitize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ clang-format
+
+      - name: Configure with sanitizers
+        run: cmake -S . -B build-sanitize -DENABLE_SANITIZERS=ON
+
+      - name: Build with sanitizers
+        run: cmake --build build-sanitize
+
+      - name: Run Huffman unit tests with sanitizers
+        run: ./build-sanitize/test_huffman
+
+      - name: Run bit I/O tests with sanitizers
+        run: ./build-sanitize/test_bit_io
+
+      - name: Run integration tests with sanitizers
+        run: ./build-sanitize/test_integration
+  clang-tidy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ clang-tidy
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy on source files
+        run: |
+          clang-tidy src/*.cpp tests/*.cpp -p build --warnings-as-errors='*'

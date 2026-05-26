@@ -5,6 +5,13 @@ project(huffman_archiver)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(ENABLE_SANITIZERS "Enable address and undefined sanitizers" OFF)
+
+if (ENABLE_SANITIZERS)
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address,undefined)
+endif()
+
 # Main
 add_executable(huffman_archiver
     src/main.cpp

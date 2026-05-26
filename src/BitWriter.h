@@ -5,14 +5,14 @@
 
 class BitWriter {
 private:
-    std::ofstream* out;
-    unsigned char buffer;
-    int bitCount;
+  std::ofstream *out;
+  unsigned char buffer{0};
+  int bitCount{0};
 
 public:
-    BitWriter(std::ofstream& outputStream);
-    void writeBit(bool bit);
-    void flush();
+  BitWriter(std::ofstream &outputStream);
+  void writeBit(bool bit);
+  void flush();
 };
 
 #endif

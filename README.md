@@ -49,6 +49,14 @@ cd build
 cmake ..
 cmake --build .
 ```
+
+Sanitizer build:
+```
+mkdir build-sanitize
+cd build-sanitize
+cmake -DENABLE_SANITIZERS=ON ..
+cmake --build .
+```
 ## Usage
 
 ```
@@ -66,7 +74,15 @@ Example:
 To run tests, run the following commands
 
 ```bash
-  ./test_huffman
-  ./test_bit_io
-  ./test_integration
+  ./build/test_huffman
+  ./build/test_bit_io
+  ./build/test_integration
 ```
+
+## Code Quality
+
+The project uses:
+- clang-format for consistent code formatting
+- clang-tidy for static analysis
+- AddressSanitizer and UndefinedBehaviorSanitizer for runtime checks
+- GitHub Actions for automatic build and test verification
