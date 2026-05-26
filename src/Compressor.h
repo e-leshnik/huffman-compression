@@ -5,7 +5,8 @@
 
 class Compressor {
 public:
-    static void compress(const std::string& inputFile, const std::string& outputFile);
+  static void compress(const std::string &inputFile,
+                       const std::string &outputFile);
 };
 
 #endif

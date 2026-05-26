@@ -5,7 +5,8 @@
 
 class Decompressor {
 public:
-    static void decompress(const std::string& inputFile, const std::string& outputFile);
+  static void decompress(const std::string &inputFile,
+                         const std::string &outputFile);
 };
 
 #endif
