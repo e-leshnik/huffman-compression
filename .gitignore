@@ -56,3 +56,4 @@ data/test_output_*.bin
 data/test_result_*.txt
 data/test_result_*.bin
 data/test_bits_*.bin
+experiments/output/

@@ -1,0 +1,1782 @@
+class AvlNode<K : Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: AvlNode<K, V>? = null,
+    right: AvlNode<K, V>? = null,
+    var height: Int = 1
+) : Node<K, V, AvlNode<K, V>>(key, value, left, right)
+
+class AvlTree<K : Comparable<K>, V> : Tree<K, V> {
+    private var root: AvlNode<K, V>? = null
+    var size = 0
+
+    private fun height(node: AvlNode<K, V>?): Int {
+        return node?.height ?: 0
+    }
+
+    private fun updateHeight(node: AvlNode<K, V>?) {
+        node?.height = 1 + maxOf(height(node.left), height(node.right))
+    }
+
+    private fun balanceFactor(node: AvlNode<K, V>?): Int {
+        return if (node == null) 0 else height(node.left) - height(node.right)
+    }
+
+    private fun minNode(node: AvlNode<K, V>): AvlNode<K, V> {
+        var current: AvlNode<K, V> = node
+        while (current.left != null) {
+            current = current.left!!
+        }
+        return current
+    }
+}abstract class Node<K : Comparable<K>, V, N : Node<K, V, N>>(
+    var key : K,
+    var value : V,
+    var left: N? = null,
+    var right: N? = null
+)
+
+interface Tree<K : Comparable<K>, V> : Iterable<Pair<K, V>> {
+    fun insert(key: K, value: V)
+    fun delete(key: K)
+    fun search(key: K): V?
+}
+enum class NodeColor {
+    RED, BLACK
+}
+
+class RBNode<K : Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: RBNode<K, V>? = null,
+    right: RBNode<K, V>? = null,
+    var parent: RBNode<K, V>? = null,
+    var color: NodeColor = NodeColor.RED,
+) : Node<K, V, RBNode<K, V>>(key, value, left, right)
+
+class RBTree<K : Comparable<K>, V> : Tree<K, V> {
+    private var root: RBNode<K, V>? = null
+
+    private fun rotateLeft(x: RBNode<K, V>?) {         //x        y
+        val y = x?.right ?: return                     // \  ->  /
+                                                       //  y    x
+        x.right = y.left
+        y.left?.parent = x
+
+        val parent = x.parent
+        y.parent = parent
+
+        when {
+            parent == null -> root = y
+            x == parent.left -> parent.left = y
+            else -> parent.right = y
+        }
+
+        y.left = x
+        x.parent = y
+    }
+
+    private fun rotateRight(x: RBNode<K, V>?) {        // x     y
+        val y = x?.left ?: return                     // /  ->   \
+                                                     // y         x
+        x.left = y.right
+        y.right?.parent = x
+
+        val parent = x.parent
+        y.parent = parent
+
+        when {
+            parent == null -> root = y
+            x == parent.right -> parent.right = y
+            else -> parent.left = y
+        }
+
+        y.right = x
+        x.parent = y
+    }
+
+    private fun fixAfterInsert(node: RBNode<K, V>) {
+        var current: RBNode<K, V>? = node
+
+        while (current != root && current?.parent?.color == NodeColor.RED) {
+            val grandparent = current.parent?.parent
+
+            if (current.parent == grandparent?.left) {
+                val uncle = grandparent?.right
+
+                if (uncle?.color == NodeColor.RED) {
+                    current.parent?.color = NodeColor.BLACK
+                    uncle.color = NodeColor.BLACK
+                    grandparent.color = NodeColor.RED
+                    current = grandparent
+                } else {
+                    if (current == current.parent?.right) {
+                        val parent = current.parent
+
+                        if (parent != null) {
+                            current = parent
+                            rotateLeft(current)
+                        }
+                    }
+
+                    current.parent?.color = NodeColor.BLACK
+                    grandparent?.color = NodeColor.RED
+                    rotateRight(grandparent)
+                }
+            } else {
+                val uncle = grandparent?.left
+
+                if (uncle?.color == NodeColor.RED) {
+                    current.parent?.color = NodeColor.BLACK
+                    uncle.color = NodeColor.BLACK
+                    grandparent.color = NodeColor.RED
+                    current = grandparent
+                } else {
+                    if (current == current.parent?.left) {
+                        current = current.parent
+                        rotateRight(current)
+                    }
+
+                    current?.parent?.color = NodeColor.BLACK
+                    grandparent?.color = NodeColor.RED
+                    rotateLeft(grandparent)
+                }
+            }
+        }
+
+        root?.color = NodeColor.BLACK
+    }
+}package bst
+
+import tree.BinNode
+import tree.Tree
+
+class BinTree<K: Comparable<K>, V>: Tree<K, V> {
+    private var root: BinNode<K, V>? = null
+
+    override fun insert(key: K, value: V) {
+        if (root == null) {
+            root = BinNode(key, value)
+            return
+        }
+
+        var current = root
+
+        while (current != null) {
+            when {
+                key < current.key -> {
+                    if (current.left == null) {
+                        current.left = BinNode(key, value)
+                        return
+                    }
+                    current = current.left
+                }
+
+                key > current.key -> {
+                    if (current.right == null) {
+                        current.right = BinNode(key, value)
+                        return
+                    }
+                    current = current.right
+                }
+
+                else -> {
+                    current.value = value
+                    return
+                }
+            }
+        }
+    }
+
+    override fun delete(key: K) {
+        root = deleteNode(root, key)
+    }
+
+    private fun deleteNode(binNode: BinNode<K, V>?, key: K): BinNode<K, V>? {
+        binNode ?: return null
+
+        when {
+            key < binNode.key -> binNode.left = deleteNode(binNode.left, key)
+            key > binNode.key -> binNode.right = deleteNode(binNode.right, key)
+            else -> {
+                if (binNode.left == null && binNode.right == null) {
+                    return null
+                }
+                if (binNode.left == null) {
+                    return binNode.right
+                }
+                if (binNode.right == null) {
+                    return binNode.left
+                }
+
+                val minNode = findMin(binNode.right!!)
+                binNode.key = minNode.key
+                binNode.value = minNode.value
+                binNode.right = deleteNode(binNode.right, minNode.key)
+            }
+        }
+        return binNode
+    }
+
+    private fun findMin(binNode: BinNode<K, V>): BinNode<K, V> {
+        var current = binNode
+        while (current.left != null) {
+            current = current.left!!
+        }
+        return current
+    }
+
+    override fun search(key: K): V? {
+        var current = root
+
+        while (current != null) {
+            when {
+                key < current.key -> current = current.left
+                key > current.key -> current = current.right
+                else -> return current.value
+            }
+        }
+
+        return null
+    }
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        val result = mutableListOf<Pair<K, V>>()
+        val queue = ArrayDeque<BinNode<K, V>>()
+
+        if (root != null) {
+            queue.add(root!!)
+        }
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            result.add(current.key to current.value)
+
+            if (current.left != null) {
+                queue.add(current.left!!)
+            }
+            if (current.right != null) {
+                queue.add(current.right!!)
+            }
+        }
+
+        return result.iterator()
+    }
+}package tree
+
+open class BinNode<K: Comparable<K>, V>(
+    var key: K,
+    var value: V,
+    var left: BinNode<K, V>? = null,
+    var right: BinNode<K, V>? = null
+)package tree
+
+interface Tree<K: Comparable<K>, V>: Iterable<Pair<K, V>>{
+    fun insert(key: K, value: V)
+    fun delete(key: K)
+    fun search(key: K): V?
+}package bst
+
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import kotlin.test.assertTrue
+import kotlin.text.insert
+
+class BinTreeTest {
+
+    @Test
+    fun searchInEmptyTreeReturnsNull() {
+        val tree = BinTree<Int, String>()
+
+        assertNull(tree.search(10))
+    }
+
+    @Test
+    fun insertOneElementAndFindIt() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+
+        assertEquals("five", tree.search(5))
+    }
+
+    @Test
+    fun insertSeveralElementsAndFindThem() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+
+        assertEquals("five", tree.search(5))
+        assertEquals("three", tree.search(3))
+        assertEquals("seven", tree.search(7))
+    }
+
+    @Test
+    fun insertExistingKeyReplacesValue() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "old")
+        tree.insert(5, "new")
+
+        assertEquals("new", tree.search(5))
+    }
+
+    @Test
+    fun searchMissingKeyReturnsNull() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+
+        assertNull(tree.search(10))
+    }
+
+    @Test
+    fun deleteFromEmptyTreeDoesNothing() {
+        val tree = BinTree<Int, String>()
+
+        tree.delete(10)
+
+        assertNull(tree.search(10))
+    }
+
+    @Test
+    fun deleteLeaf() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+
+        tree.delete(3)
+
+        assertNull(tree.search(3))
+        assertEquals("five", tree.search(5))
+        assertEquals("seven", tree.search(7))
+    }
+
+    @Test
+    fun deleteNodeWithOnlyLeftChild() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(2, "two")
+
+        tree.delete(3)
+
+        assertNull(tree.search(3))
+        assertEquals("two", tree.search(2))
+        assertEquals("five", tree.search(5))
+    }
+
+    @Test
+    fun deleteNodeWithOnlyRightChild() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(7, "seven")
+        tree.insert(8, "eight")
+
+        tree.delete(7)
+
+        assertNull(tree.search(7))
+        assertEquals("eight", tree.search(8))
+        assertEquals("five", tree.search(5))
+    }
+
+    @Test
+    fun deleteNodeWithTwoChildren() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+        tree.insert(6, "six")
+        tree.insert(8, "eight")
+
+        tree.delete(7)
+
+        assertNull(tree.search(7))
+        assertEquals("six", tree.search(6))
+        assertEquals("eight", tree.search(8))
+        assertEquals("five", tree.search(5))
+    }
+
+    @Test
+    fun deleteRoot() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+
+        tree.delete(5)
+
+        assertNull(tree.search(5))
+        assertEquals("three", tree.search(3))
+        assertEquals("seven", tree.search(7))
+    }
+
+    @Test
+    fun deleteRootWithOneChild() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+
+        tree.delete(5)
+
+        assertNull(tree.search(5))
+        assertEquals("three", tree.search(3))
+    }
+
+    @Test
+    fun deleteMissingKeyDoesNothing() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+
+        tree.delete(10)
+
+        assertEquals("five", tree.search(5))
+        assertEquals("three", tree.search(3))
+        assertEquals("seven", tree.search(7))
+    }
+
+    @Test
+    fun iteratorOnEmptyTree() {
+        val tree = BinTree<Int, String>()
+
+        val result = tree.toList()
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun iteratorReturnsElementsInBFSOrder() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+        tree.insert(2, "two")
+        tree.insert(4, "four")
+
+        val result = tree.toList()
+
+        assertEquals(
+            listOf(
+                5 to "five",
+                3 to "three",
+                7 to "seven",
+                2 to "two",
+                4 to "four",
+            ), result)
+    }
+
+    @Test
+    fun iteratorWorksCorrectlyAfterDeletion() {
+        val tree = BinTree<Int, String>()
+
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+        tree.insert(6, "six")
+        tree.insert(8, "eight")
+
+        tree.delete(7)
+
+        val result = tree.toList()
+
+        assertEquals(
+            listOf(
+                5 to "five",
+                3 to "three",
+                8 to "eight",
+                6 to "six"
+            ), result)
+    }
+}class AvlNode<K : Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: AvlNode<K, V>? = null,
+    right: AvlNode<K, V>? = null,
+    var height: Int = 1
+) : Node<K, V, AvlNode<K, V>>(key, value, left, right)
+
+class AvlTree<K : Comparable<K>, V> : Tree<K, V> {
+    private var root: AvlNode<K, V>? = null
+    var size = 0
+
+    private fun height(node: AvlNode<K, V>?): Int {
+        return node?.height ?: 0
+    }
+
+    private fun updateHeight(node: AvlNode<K, V>?) {
+        node?.height = 1 + maxOf(height(node.left), height(node.right))
+    }
+
+    private fun balanceFactor(node: AvlNode<K, V>?): Int {
+        return if (node == null) 0 else height(node.left) - height(node.right)
+    }
+
+    private fun minNode(node: AvlNode<K, V>): AvlNode<K, V> {
+        var current: AvlNode<K, V> = node
+        while (true) {
+            val left = current.left ?: return current
+            current = left
+        }
+    }
+
+    private fun rotateRight(node: AvlNode<K, V>): AvlNode<K, V> {
+        val newRoot: AvlNode<K, V> = node.left ?: return node
+        val temp = newRoot.right
+        newRoot.right = node
+        node.left = temp
+        updateHeight(node)
+        updateHeight(newRoot)
+        return newRoot
+    }
+
+    private fun rotateLeft(node: AvlNode<K, V>): AvlNode<K, V> {
+        val newRoot : AvlNode<K, V> = node.right ?: return node
+        val temp = newRoot.left
+        newRoot.left = node
+        node.right = temp
+        updateHeight(node)
+        updateHeight(newRoot)
+        return newRoot
+    }
+
+    private fun rotateRightLeft(node: AvlNode<K, V>): AvlNode<K, V> {
+        node.right = node.right?.let { rotateRight(it) }
+        return rotateLeft(node)
+    }
+
+    private fun rotateLeftRight(node: AvlNode<K, V>): AvlNode<K, V> {
+        node.left = node.left?.let { rotateLeft(it) }
+        return rotateRight(node)
+    }
+
+    private fun balance(node: AvlNode<K, V>): AvlNode<K, V> {
+        updateHeight(node)
+        val balance = balanceFactor(node)
+
+        if (balance > 1) {
+            if (balanceFactor(node.left) >= 0) return rotateRight(node)
+            return rotateLeftRight(node)
+
+        }
+
+        if (balance < -1) {
+            if (balanceFactor(node.right) <= 0) return rotateLeft(node)
+            return rotateRightLeft(node)
+        }
+
+        return node
+    }
+
+    override fun search(key: K): V? {
+        val target = searchNode(root, key)
+        if (target != null) return target.value
+        return null
+    }
+
+    private fun searchNode(node: AvlNode<K, V>?, key: K): AvlNode<K, V>? {
+        if (node == null || node.key == key) return node
+        if (node.key < key) return searchNode(node.right, key)
+        return searchNode(node.left, key)
+    }
+
+    override fun insert(key: K, value: V) {
+        root = insertNode(root, key, value)
+    }
+
+    private fun insertNode(node: AvlNode<K, V>?, key: K, value: V): AvlNode<K, V> {
+        if (node == null) {
+            size++
+            return AvlNode(key, value)
+        }
+        if (key < node.key) {
+            node.left = insertNode(node.left, key, value)
+        } else if (key > node.key) {
+            node.right = insertNode(node.right, key, value)
+        } else {
+            node.value = value
+            return node
+        }
+        return balance(node)
+    }
+
+    override fun delete(key: K) {
+        root = deleteNode(root, key)
+    }
+
+    private fun deleteNode(node: AvlNode<K, V>?, key: K): AvlNode<K, V>? {
+        if (node == null) return null
+        if (key < node.key) {
+            node.left = deleteNode(node.left, key)
+        } else if (key > node.key) {
+            node.right = deleteNode(node.right, key)
+        } else {
+            if (node.left == null) {
+                size--
+                return node.right
+            } else if (node.right == null) {
+                size--
+                return node.left
+            }
+            node.right?.let { right ->
+                val temp = minNode(right)
+                node.key = temp.key
+                node.value = temp.value
+                node.right = deleteNode(node.right, temp.key)
+            } ?: error("Right  child should not be null")
+        }
+        return balance(node)
+    }
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        return bfsSequence().iterator()
+    }
+
+    private fun bfsSequence(): Sequence<Pair<K, V>> = sequence {
+        val queue = ArrayDeque<AvlNode<K, V>>()
+        root?.let { queue.add(it) }
+        while (queue.isNotEmpty()) {
+            val node = queue.removeFirst()
+            yield(node.key to node.value)
+            node.left?.let { queue.add(it) }
+            node.right?.let { queue.add(it) }
+        }
+    }
+}
+class AvlNode<K : Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: AvlNode<K, V>? = null,
+    right: AvlNode<K, V>? = null,
+    var height: Int = 1
+) : Node<K, V, AvlNode<K, V>>(key, value, left, right)
+
+class AvlTree<K : Comparable<K>, V> : Tree<K, V> {
+    private var root: AvlNode<K, V>? = null
+    var size = 0
+
+    private fun height(node: AvlNode<K, V>?): Int {
+        return node?.height ?: 0
+    }
+
+    private fun updateHeight(node: AvlNode<K, V>?) {
+        node?.height = 1 + maxOf(height(node.left), height(node.right))
+    }
+
+    private fun balanceFactor(node: AvlNode<K, V>?): Int {
+        return if (node == null) 0 else height(node.left) - height(node.right)
+    }
+
+    private fun minNode(node: AvlNode<K, V>): AvlNode<K, V> {
+        var current: AvlNode<K, V> = node
+        while (true) {
+            val left = current.left ?: return current
+            current = left
+        }
+    }
+
+    private fun rotateRight(node: AvlNode<K, V>): AvlNode<K, V> {
+        val newRoot: AvlNode<K, V> = node.left ?: return node
+        val temp = newRoot.right
+        newRoot.right = node
+        node.left = temp
+        updateHeight(node)
+        updateHeight(newRoot)
+        return newRoot
+    }
+
+    private fun rotateLeft(node: AvlNode<K, V>): AvlNode<K, V> {
+        val newRoot : AvlNode<K, V> = node.right ?: return node
+        val temp = newRoot.left
+        newRoot.left = node
+        node.right = temp
+        updateHeight(node)
+        updateHeight(newRoot)
+        return newRoot
+    }
+
+    private fun rotateRightLeft(node: AvlNode<K, V>): AvlNode<K, V> {
+        node.right = node.right?.let { rotateRight(it) }
+        return rotateLeft(node)
+    }
+
+    private fun rotateLeftRight(node: AvlNode<K, V>): AvlNode<K, V> {
+        node.left = node.left?.let { rotateLeft(it) }
+        return rotateRight(node)
+    }
+
+    private fun balance(node: AvlNode<K, V>): AvlNode<K, V> {
+        updateHeight(node)
+        val balance = balanceFactor(node)
+
+        if (balance > 1) {
+            if (balanceFactor(node.left) >= 0) return rotateRight(node)
+            return rotateLeftRight(node)
+
+        }
+
+        if (balance < -1) {
+            if (balanceFactor(node.right) <= 0) return rotateLeft(node)
+            return rotateRightLeft(node)
+        }
+
+        return node
+    }
+
+    override fun search(key: K): V? {
+        val target = searchNode(root, key)
+        if (target != null) return target.value
+        return null
+    }
+
+    private fun searchNode(node: AvlNode<K, V>?, key: K): AvlNode<K, V>? {
+        if (node == null || node.key == key) return node
+        if (node.key < key) return searchNode(node.right, key)
+        return searchNode(node.left, key)
+    }
+
+    override fun insert(key: K, value: V) {
+        root = insertNode(root, key, value)
+    }
+
+    private fun insertNode(node: AvlNode<K, V>?, key: K, value: V): AvlNode<K, V> {
+        if (node == null) {
+            size++
+            return AvlNode(key, value)
+        }
+        if (key < node.key) {
+            node.left = insertNode(node.left, key, value)
+        } else if (key > node.key) {
+            node.right = insertNode(node.right, key, value)
+        } else {
+            node.value = value
+            return node
+        }
+        return balance(node)
+    }
+
+    override fun delete(key: K) {
+        root = deleteNode(root, key)
+    }
+
+    private fun deleteNode(node: AvlNode<K, V>?, key: K): AvlNode<K, V>? {
+        if (node == null) return null
+        if (key < node.key) {
+            node.left = deleteNode(node.left, key)
+        } else if (key > node.key) {
+            node.right = deleteNode(node.right, key)
+        } else {
+            if (node.left == null) {
+                size--
+                return node.right
+            } else if (node.right == null) {
+                size--
+                return node.left
+            }
+            node.right?.let { right ->
+                val temp = minNode(right)
+                node.key = temp.key
+                node.value = temp.value
+                node.right = deleteNode(node.right, temp.key)
+            } ?: error("Right  child should not be null")
+        }
+        return balance(node)
+    }
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        return bfsSequence().iterator()
+    }
+
+    private fun bfsSequence(): Sequence<Pair<K, V>> = sequence {
+        val queue = ArrayDeque<AvlNode<K, V>>()
+        root?.let { queue.add(it) }
+        while (queue.isNotEmpty()) {
+            val node = queue.removeFirst()
+            yield(node.key to node.value)
+            node.left?.let { queue.add(it) }
+            node.right?.let { queue.add(it) }
+        }
+    }
+}
+class BinNode<K : Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: BinNode<K, V>? = null,
+    right: BinNode<K, V>? = null
+) : Node<K, V, BinNode<K, V>>(key, value, left, right)
+
+class BinTree<K : Comparable<K>, V> : Tree<K, V> {
+    private var root: BinNode<K, V>? = null
+
+    override fun insert(key: K, value: V) {
+        if (root == null) {
+            root = BinNode(key, value)
+            return
+        }
+
+        var current = root
+
+        while (current != null) {
+            when {
+                key < current.key -> {
+                    if (current.left == null) {
+                        current.left = BinNode(key, value)
+                        return
+                    }
+                    current = current.left
+                }
+
+                key > current.key -> {
+                    if (current.right == null) {
+                        current.right = BinNode(key, value)
+                        return
+                    }
+                    current = current.right
+                }
+
+                else -> {
+                    current.value = value
+                    return
+                }
+            }
+        }
+    }
+
+    override fun delete(key: K) {
+        root = deleteNode(root, key)
+    }
+
+    private fun deleteNode(node: BinNode<K, V>?, key: K): BinNode<K, V>? {
+        node ?: return null
+
+        when {
+            key < node.key -> node.left = deleteNode(node.left, key)
+            key > node.key -> node.right = deleteNode(node.right, key)
+            else -> {
+                if (node.left == null && node.right == null) {
+                    return null
+                }
+                if (node.left == null) {
+                    return node.right
+                }
+                if (node.right == null) {
+                    return node.left
+                }
+
+                val rightChild = node.right ?: return node
+                val minNode = findMin(rightChild)
+                node.key = minNode.key
+                node.value = minNode.value
+                node.right = deleteNode(node.right, minNode.key)
+            }
+        }
+        return node
+    }
+
+    private fun findMin(node: BinNode<K, V>): BinNode<K, V> {
+        var current = node
+        while (true) {
+            val leftChild = current.left ?: break
+            current = leftChild
+        }
+        return current
+    }
+
+    override fun search(key: K): V? {
+        var current = root
+
+        while (current != null) {
+            when {
+                key < current.key -> current = current.left
+                key > current.key -> current = current.right
+                else -> return current.value
+            }
+        }
+
+        return null
+    }
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        return bfsSequence().iterator()
+    }
+
+    private fun bfsSequence(): Sequence<Pair<K, V>> = sequence {
+        val queue = ArrayDeque<BinNode<K, V>>()
+        root?.let { queue.add(it) }
+
+        while (queue.isNotEmpty()) {
+            val node = queue.removeFirst()
+            yield(node.key to node.value)
+            node.left?.let { queue.add(it) }
+            node.right?.let { queue.add(it) }
+        }
+    }
+}class BinNode<K : Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: BinNode<K, V>? = null,
+    right: BinNode<K, V>? = null
+) : Node<K, V, BinNode<K, V>>(key, value, left, right)
+
+class BinTree<K : Comparable<K>, V> : Tree<K, V> {
+    private var root: BinNode<K, V>? = null
+
+    override fun insert(key: K, value: V) {
+        if (root == null) {
+            root = BinNode(key, value)
+            return
+        }
+
+        var current = root
+
+        while (current != null) {
+            when {
+                key < current.key -> {
+                    if (current.left == null) {
+                        current.left = BinNode(key, value)
+                        return
+                    }
+                    current = current.left
+                }
+
+                key > current.key -> {
+                    if (current.right == null) {
+                        current.right = BinNode(key, value)
+                        return
+                    }
+                    current = current.right
+                }
+
+                else -> {
+                    current.value = value
+                    return
+                }
+            }
+        }
+    }
+
+    override fun delete(key: K) {
+        root = deleteNode(root, key)
+    }
+
+    private fun deleteNode(node: BinNode<K, V>?, key: K): BinNode<K, V>? {
+        node ?: return null
+
+        when {
+            key < node.key -> node.left = deleteNode(node.left, key)
+            key > node.key -> node.right = deleteNode(node.right, key)
+            else -> {
+                if (node.left == null && node.right == null) {
+                    return null
+                }
+                if (node.left == null) {
+                    return node.right
+                }
+                if (node.right == null) {
+                    return node.left
+                }
+
+                val rightChild = node.right ?: return node
+                val minNode = findMin(rightChild)
+                node.key = minNode.key
+                node.value = minNode.value
+                node.right = deleteNode(node.right, minNode.key)
+            }
+        }
+        return node
+    }
+
+    private fun findMin(node: BinNode<K, V>): BinNode<K, V> {
+        var current = node
+        while (true) {
+            val leftChild = current.left ?: break
+            current = leftChild
+        }
+        return current
+    }
+
+    override fun search(key: K): V? {
+        var current = root
+
+        while (current != null) {
+            when {
+                key < current.key -> current = current.left
+                key > current.key -> current = current.right
+                else -> return current.value
+            }
+        }
+
+        return null
+    }
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        return bfsSequence().iterator()
+    }
+
+    private fun bfsSequence(): Sequence<Pair<K, V>> = sequence {
+        val queue = ArrayDeque<BinNode<K, V>>()
+        root?.let { queue.add(it) }
+
+        while (queue.isNotEmpty()) {
+            val node = queue.removeFirst()
+            yield(node.key to node.value)
+            node.left?.let { queue.add(it) }
+            node.right?.let { queue.add(it) }
+        }
+    }
+}abstract class Node<K : Comparable<K>, V, N : Node<K, V, N>>(
+    var key : K,
+    var value : V,
+    var left: N? = null,
+    var right: N? = null
+)
+
+interface Tree<K : Comparable<K>, V> : Iterable<Pair<K, V>> {
+    fun insert(key: K, value: V)
+    fun delete(key: K)
+    fun search(key: K): V?
+}
+abstract class Node<K : Comparable<K>, V, N : Node<K, V, N>>(
+    var key : K,
+    var value : V,
+    var left: N? = null,
+    var right: N? = null
+)
+
+interface Tree<K : Comparable<K>, V> : Iterable<Pair<K, V>> {
+    fun insert(key: K, value: V)
+    fun delete(key: K)
+    fun search(key: K): V?
+}
+
+enum class NodeColor {
+    RED, BLACK
+}
+
+class RBNode<K: Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: RBNode<K, V>? = null,
+    right: RBNode<K, V>? = null,
+    var parent: RBNode<K, V>? = null,
+    var color: NodeColor = NodeColor.RED,
+): Node<K, V, RBNode<K, V>>(key, value, left, right)
+
+class RBTree<K: Comparable<K>, V>: Tree<K, V> {
+    private var root: RBNode<K, V>? = null
+
+    override fun insert(key: K, value: V) {
+        val newNode = RBNode(key, value)
+
+        if (root == null) {
+            root = newNode
+        } else {
+            insertBST(root, newNode)
+        }
+
+        fixAfterInsert(newNode)
+    }
+
+    override fun delete(key: K) {
+        val node = findNode(key) ?: return
+        deleteNode(node)
+    }
+
+    override fun search(key: K): V? {
+        val node = findNode(key)
+        return node?.value
+    }
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        return bfsSequence().iterator()
+    }
+
+    private fun insertBST(current: RBNode<K, V>?, node: RBNode<K, V>) {
+        if (current != null) {
+            when {
+                node.key < current.key -> {
+                    val currentLeftChild = current.left
+
+                    if (currentLeftChild == null) {
+                        current.left = node
+                        node.parent = current
+                    } else {
+                        insertBST(currentLeftChild, node)
+                    }
+                }
+
+                node.key > current.key -> {
+                    val currentRightChild = current.right
+
+                    if (currentRightChild == null) {
+                        current.right = node
+                        node.parent = current
+                    } else {
+                        insertBST(currentRightChild, node)
+                    }
+                }
+
+                else -> {
+                    current.value = node.value
+                }
+            }
+        }
+    }
+
+    private fun deleteNode(node: RBNode<K, V>?) {
+        var y = node
+        var yOriginalColor = y?.color
+        var x: RBNode<K, V>?
+
+        if (node?.left == null) {
+            x = node?.right
+            transplant(node, node?.right)
+        } else if (node.right == null) {                        
+            x = node.left
+            transplant(node, node.left)
+        } else {
+            y = minimum(node.right)
+            yOriginalColor = y?.color
+            x = y?.right
+
+            if (y?.parent == node) {
+                x?.parent = y
+            } else {
+                transplant(y, y?.right)
+                y?.right = node.right
+                y?.right?.parent = y
+            }
+
+            transplant(node, y)
+            y?.left = node.left
+            y?.left?.parent = y
+            y?.color = node.color
+        }
+
+        if (yOriginalColor == NodeColor.BLACK) {
+            fixAfterDelete(x)
+        }
+    }
+
+    private fun findNode(key: K): RBNode<K, V>? {
+        var current = root
+
+        while (current != null) {
+            current = when {
+                key > current.key -> current.right
+                key < current.key -> current.left
+                else -> return current
+            }
+        }
+
+        return null
+    }
+
+    private fun rotateLeft(x: RBNode<K, V>?) {         //x        y
+        val y = x?.right ?: return                     // \  ->  /
+                                                       //  y    x
+        x.right = y.left
+        y.left?.parent = x
+
+        val parent = x.parent
+        y.parent = parent
+
+        when {
+            parent == null -> root = y
+            x == parent.left -> parent.left = y
+            else -> parent.right = y
+        }
+
+        y.left = x
+        x.parent = y
+    }
+
+    private fun rotateRight(x: RBNode<K, V>?) {        // x     y
+        val y = x?.left ?: return                     // /  ->   \
+                                                     // y         x
+        x.left = y.right
+        y.right?.parent = x
+
+        val parent = x.parent
+        y.parent = parent
+
+        when {
+            parent == null -> root = y
+            x == parent.right -> parent.right = y
+            else -> parent.left = y
+        }
+
+        y.right = x
+        x.parent = y
+    }
+
+    private fun fixAfterInsert(node: RBNode<K, V>) {
+        var current: RBNode<K, V>? = node
+
+        while (current != root && current?.parent?.color == NodeColor.RED) {
+            val grandparent = current.parent?.parent
+
+            if (current.parent == grandparent?.left) {
+                val uncle = grandparent?.right
+
+                if (uncle?.color == NodeColor.RED) {
+                    current.parent?.color = NodeColor.BLACK
+                    uncle.color = NodeColor.BLACK
+                    grandparent.color = NodeColor.RED
+                    current = grandparent
+                } else {
+                    if (current == current.parent?.right) {
+                        val parent = current.parent
+
+                        if (parent != null) {
+                            current = parent
+                            rotateLeft(current)
+                        }
+                    }
+
+                    current.parent?.color = NodeColor.BLACK
+                    grandparent?.color = NodeColor.RED
+                    rotateRight(grandparent)
+                }
+            } else {
+                val uncle = grandparent?.left
+
+                if (uncle?.color == NodeColor.RED) {
+                    current.parent?.color = NodeColor.BLACK
+                    uncle.color = NodeColor.BLACK
+                    grandparent.color = NodeColor.RED
+                    current = grandparent
+                } else {
+                    if (current == current.parent?.left) {
+                        current = current.parent
+                        rotateRight(current)
+                    }
+
+                    current?.parent?.color = NodeColor.BLACK
+                    grandparent?.color = NodeColor.RED
+                    rotateLeft(grandparent)
+                }
+            }
+        }
+
+        root?.color = NodeColor.BLACK
+    }
+
+    private fun minimum(node: RBNode<K, V>?): RBNode<K, V>? {
+        var current = node
+
+        while (current?.left != null) {
+            current = current.left
+        }
+
+        return current
+    }
+
+    private fun transplant(x: RBNode<K, V>?, y: RBNode<K, V>?) {
+        when {
+            x?.parent == null -> root = y                   //   P
+            x == x.parent?.left -> x.parent?.left = y       //  /            P
+            else -> x.parent?.right = y                     // x      ->    /
+        }                                                  // / \          y
+                                                          // L   R
+        y?.parent = x?.parent
+    }
+
+    private fun fixAfterDelete(node: RBNode<K, V>?) {
+        var current = node
+
+        while (current != root && current?.color != NodeColor.BLACK) {
+            val parent = current?.parent ?: break
+
+            if (current == parent.left) {
+                var brother = parent.right
+
+                if (brother?.color == NodeColor.RED) {
+                    brother.color = NodeColor.BLACK
+                    parent.color = NodeColor.RED
+                    rotateLeft(parent)
+                    brother = parent.right
+                } else {
+                    if (brother?.left?.color == NodeColor.BLACK && brother.right?.color == NodeColor.BLACK) {
+                        brother.color = NodeColor.RED
+                        current = parent
+                    } else {
+                        if (brother?.right?.color == NodeColor.BLACK) {
+                            brother.left?.color = NodeColor.BLACK
+                            brother.color = NodeColor.RED
+                            rotateRight(brother)
+                            brother = parent.right
+                        }
+
+                        brother?.color = parent.color
+                        parent.color = NodeColor.BLACK
+                        brother?.right?.color = NodeColor.BLACK
+                        rotateLeft(parent)
+                        current = root
+                    }
+                }
+            } else {
+                var brother = parent.left
+
+                if (brother?.color == NodeColor.RED) {
+                    brother.color = NodeColor.BLACK
+                    parent.color = NodeColor.RED
+                    rotateRight(parent)
+                    brother = parent.left
+                } else {
+                    if (brother?.left?.color == NodeColor.BLACK && brother.right?.color == NodeColor.BLACK) {
+                        brother.color = NodeColor.RED
+                        current = parent
+                    } else {
+                        if (brother?.left?.color == NodeColor.BLACK) {
+                            brother.right?.color = NodeColor.BLACK
+                            brother.color = NodeColor.RED
+                            rotateLeft(brother)
+                            brother = parent.left
+                        }
+
+                        brother?.color = parent.color
+                        parent.color = NodeColor.BLACK
+                        brother?.left?.color = NodeColor.BLACK
+                        rotateRight(parent)
+                        current = root
+                    }
+                }
+            }
+        }
+
+        current?.color = NodeColor.BLACK
+    }
+
+    private fun bfsSequence(): Sequence<Pair<K, V>> = sequence {
+        val queue = ArrayDeque<RBNode<K, V>>()
+        root?.let { queue.add(it) }
+
+        while (queue.isNotEmpty()) {
+            val node = queue.removeFirst()
+            yield(node.key to node.value)
+            node.left?.let { queue.add(it) }
+            node.right?.let { queue.add(it) }
+        }
+    }
+}
+
+enum class NodeColor {
+    RED, BLACK
+}
+
+class RBNode<K: Comparable<K>, V>(
+    key: K,
+    value: V,
+    left: RBNode<K, V>? = null,
+    right: RBNode<K, V>? = null,
+    var parent: RBNode<K, V>? = null,
+    var color: NodeColor = NodeColor.RED,
+): Node<K, V, RBNode<K, V>>(key, value, left, right)
+
+class RBTree<K: Comparable<K>, V>: Tree<K, V> {
+    private var root: RBNode<K, V>? = null
+
+    override fun insert(key: K, value: V) {
+        val newNode = RBNode(key, value)
+
+        if (root == null) {
+            root = newNode
+        } else {
+            insertBST(root, newNode)
+        }
+
+        fixAfterInsert(newNode)
+    }
+
+    override fun delete(key: K) {
+        val node = findNode(key) ?: return
+        deleteNode(node)
+    }
+
+    override fun search(key: K): V? {
+        val node = findNode(key)
+        return node?.value
+    }
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        return bfsSequence().iterator()
+    }
+
+    private fun insertBST(current: RBNode<K, V>?, node: RBNode<K, V>) {
+        if (current != null) {
+            when {
+                node.key < current.key -> {
+                    val currentLeftChild = current.left
+
+                    if (currentLeftChild == null) {
+                        current.left = node
+                        node.parent = current
+                    } else {
+                        insertBST(currentLeftChild, node)
+                    }
+                }
+
+                node.key > current.key -> {
+                    val currentRightChild = current.right
+
+                    if (currentRightChild == null) {
+                        current.right = node
+                        node.parent = current
+                    } else {
+                        insertBST(currentRightChild, node)
+                    }
+                }
+
+                else -> {
+                    current.value = node.value
+                }
+            }
+        }
+    }
+
+    private fun deleteNode(node: RBNode<K, V>?) {
+        var y = node
+        var yOriginalColor = y?.color
+        var x: RBNode<K, V>?
+
+        if (node?.left == null) {
+            x = node?.right
+            transplant(node, node?.right)
+        } else if (node.right == null) {                        
+            x = node.left
+            transplant(node, node.left)
+        } else {
+            y = minimum(node.right)
+            yOriginalColor = y?.color
+            x = y?.right
+
+            if (y?.parent == node) {
+                x?.parent = y
+            } else {
+                transplant(y, y?.right)
+                y?.right = node.right
+                y?.right?.parent = y
+            }
+
+            transplant(node, y)
+            y?.left = node.left
+            y?.left?.parent = y
+            y?.color = node.color
+        }
+
+        if (yOriginalColor == NodeColor.BLACK) {
+            fixAfterDelete(x)
+        }
+    }
+
+    private fun findNode(key: K): RBNode<K, V>? {
+        var current = root
+
+        while (current != null) {
+            current = when {
+                key > current.key -> current.right
+                key < current.key -> current.left
+                else -> return current
+            }
+        }
+
+        return null
+    }
+
+    private fun rotateLeft(x: RBNode<K, V>?) {         //x        y
+        val y = x?.right ?: return                     // \  ->  /
+                                                       //  y    x
+        x.right = y.left
+        y.left?.parent = x
+
+        val parent = x.parent
+        y.parent = parent
+
+        when {
+            parent == null -> root = y
+            x == parent.left -> parent.left = y
+            else -> parent.right = y
+        }
+
+        y.left = x
+        x.parent = y
+    }
+
+    private fun rotateRight(x: RBNode<K, V>?) {        // x     y
+        val y = x?.left ?: return                     // /  ->   \
+                                                     // y         x
+        x.left = y.right
+        y.right?.parent = x
+
+        val parent = x.parent
+        y.parent = parent
+
+        when {
+            parent == null -> root = y
+            x == parent.right -> parent.right = y
+            else -> parent.left = y
+        }
+
+        y.right = x
+        x.parent = y
+    }
+
+    private fun fixAfterInsert(node: RBNode<K, V>) {
+        var current: RBNode<K, V>? = node
+
+        while (current != root && current?.parent?.color == NodeColor.RED) {
+            val grandparent = current.parent?.parent
+
+            if (current.parent == grandparent?.left) {
+                val uncle = grandparent?.right
+
+                if (uncle?.color == NodeColor.RED) {
+                    current.parent?.color = NodeColor.BLACK
+                    uncle.color = NodeColor.BLACK
+                    grandparent.color = NodeColor.RED
+                    current = grandparent
+                } else {
+                    if (current == current.parent?.right) {
+                        val parent = current.parent
+
+                        if (parent != null) {
+                            current = parent
+                            rotateLeft(current)
+                        }
+                    }
+
+                    current.parent?.color = NodeColor.BLACK
+                    grandparent?.color = NodeColor.RED
+                    rotateRight(grandparent)
+                }
+            } else {
+                val uncle = grandparent?.left
+
+                if (uncle?.color == NodeColor.RED) {
+                    current.parent?.color = NodeColor.BLACK
+                    uncle.color = NodeColor.BLACK
+                    grandparent.color = NodeColor.RED
+                    current = grandparent
+                } else {
+                    if (current == current.parent?.left) {
+                        current = current.parent
+                        rotateRight(current)
+                    }
+
+                    current?.parent?.color = NodeColor.BLACK
+                    grandparent?.color = NodeColor.RED
+                    rotateLeft(grandparent)
+                }
+            }
+        }
+
+        root?.color = NodeColor.BLACK
+    }
+
+    private fun minimum(node: RBNode<K, V>?): RBNode<K, V>? {
+        var current = node
+
+        while (current?.left != null) {
+            current = current.left
+        }
+
+        return current
+    }
+
+    private fun transplant(x: RBNode<K, V>?, y: RBNode<K, V>?) {
+        when {
+            x?.parent == null -> root = y                   //   P
+            x == x.parent?.left -> x.parent?.left = y       //  /            P
+            else -> x.parent?.right = y                     // x      ->    /
+        }                                                  // / \          y
+                                                          // L   R
+        y?.parent = x?.parent
+    }
+
+    private fun fixAfterDelete(node: RBNode<K, V>?) {
+        var current = node
+
+        while (current != root && current?.color != NodeColor.BLACK) {
+            val parent = current?.parent ?: break
+
+            if (current == parent.left) {
+                var brother = parent.right
+
+                if (brother?.color == NodeColor.RED) {
+                    brother.color = NodeColor.BLACK
+                    parent.color = NodeColor.RED
+                    rotateLeft(parent)
+                    brother = parent.right
+                } else {
+                    if (brother?.left?.color == NodeColor.BLACK && brother.right?.color == NodeColor.BLACK) {
+                        brother.color = NodeColor.RED
+                        current = parent
+                    } else {
+                        if (brother?.right?.color == NodeColor.BLACK) {
+                            brother.left?.color = NodeColor.BLACK
+                            brother.color = NodeColor.RED
+                            rotateRight(brother)
+                            brother = parent.right
+                        }
+
+                        brother?.color = parent.color
+                        parent.color = NodeColor.BLACK
+                        brother?.right?.color = NodeColor.BLACK
+                        rotateLeft(parent)
+                        current = root
+                    }
+                }
+            } else {
+                var brother = parent.left
+
+                if (brother?.color == NodeColor.RED) {
+                    brother.color = NodeColor.BLACK
+                    parent.color = NodeColor.RED
+                    rotateRight(parent)
+                    brother = parent.left
+                } else {
+                    if (brother?.left?.color == NodeColor.BLACK && brother.right?.color == NodeColor.BLACK) {
+                        brother.color = NodeColor.RED
+                        current = parent
+                    } else {
+                        if (brother?.left?.color == NodeColor.BLACK) {
+                            brother.right?.color = NodeColor.BLACK
+                            brother.color = NodeColor.RED
+                            rotateLeft(brother)
+                            brother = parent.left
+                        }
+
+                        brother?.color = parent.color
+                        parent.color = NodeColor.BLACK
+                        brother?.left?.color = NodeColor.BLACK
+                        rotateRight(parent)
+                        current = root
+                    }
+                }
+            }
+        }
+
+        current?.color = NodeColor.BLACK
+    }
+
+    private fun bfsSequence(): Sequence<Pair<K, V>> = sequence {
+        val queue = ArrayDeque<RBNode<K, V>>()
+        root?.let { queue.add(it) }
+
+        while (queue.isNotEmpty()) {
+            val node = queue.removeFirst()
+            yield(node.key to node.value)
+            node.left?.let { queue.add(it) }
+            node.right?.let { queue.add(it) }
+        }
+    }
+}
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+class AvlTreeTest {
+
+    private lateinit var tree: AvlTree<Int, String>
+
+    @BeforeEach
+    fun setup() {
+        tree = AvlTree()
+    }
+
+    @Test
+    fun emptyTree() {
+        assertEquals(0, tree.size)
+        assertEquals(false, tree.iterator().hasNext())
+    }
+
+    @Test
+    fun insertElement() {
+        tree.insert(5, "five")
+        val expectedList = listOf(5 to "five")
+        assertEquals(1, tree.size)
+        assertEquals(expectedList, tree.toList())
+    }
+
+    @Test
+    fun insertExistingElement() {
+        tree.insert(5, "five")
+        tree.insert(5, "new_five")
+
+        val expectedList = listOf(5 to "new_five")
+
+        assertEquals(1, tree.size)
+        assertEquals(expectedList, tree.toList())
+    }
+
+    @Test
+    fun searchElementInSingleNodeTree() {
+        tree.insert(5, "five")
+
+        assertEquals("five", tree.search(5))
+    }
+
+    @Test
+    fun insertMultipleElements1() {
+        tree.insert(5, "five")
+        tree.insert(7, "seven")
+        tree.insert(3, "three")
+
+        val expectedList = listOf(
+            5 to "five",
+            3 to "three",
+            7 to "seven"
+        )
+
+        assertEquals(3, tree.size)
+        assertEquals(expectedList, tree.toList())
+    }
+
+    @Test
+    fun searchNonExistingElement() {
+        tree.insert(5, "five")
+        tree.insert(7, "seven")
+        tree.insert(3, "three")
+
+        assertEquals(null, tree.search(4))
+    }
+
+    @Test
+    fun insertMultipleElements2() {
+        tree.insert(4, "four")
+        tree.insert(6, "six")
+        tree.insert(2, "two")
+        tree.insert(5, "five")
+        tree.insert(3, "three")
+        tree.insert(7, "seven")
+        tree.insert(1, "one")
+
+        val expectedList = listOf(
+            4 to "four",
+            2 to "two",
+            6 to "six",
+            1 to "one",
+            3 to "three",
+            5 to "five",
+            7 to "seven"
+        )
+
+        assertEquals(7, tree.size)
+        assertEquals(expectedList, tree.toList())
+   

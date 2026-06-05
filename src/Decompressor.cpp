@@ -8,6 +8,9 @@
 void Decompressor::decompress(const std::string &inputFile,
                               const std::string &outputFile) {
   std::ifstream in(inputFile, std::ios::binary);
+  if (!in.is_open()) {
+    throw std::runtime_error("Cannot open input file: " + inputFile);
+  }
 
   int size;
   in.read(reinterpret_cast<char *>(&size), sizeof(int));
@@ -45,6 +48,9 @@ void Decompressor::decompress(const std::string &inputFile,
   std::string decoded = HuffmanTree::decodeText(encoded, root);
 
   std::ofstream out(outputFile, std::ios::binary);
+  if (!out.is_open()) {
+    throw std::runtime_error("Cannot open output file: " + outputFile);
+  }
   out << decoded;
   out.close();
 

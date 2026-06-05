@@ -8,9 +8,16 @@
 void Compressor::compress(const std::string &inputFile,
                           const std::string &outputFile) {
   std::ifstream inputStream(inputFile, std::ios::binary);
+  if (!inputStream.is_open()) {
+    throw std::runtime_error("Cannot open input file: " + inputFile);
+  }
   std::string text((std::istreambuf_iterator<char>(inputStream)),
                    std::istreambuf_iterator<char>());
   inputStream.close();
+
+  if (text.empty()) {
+    throw std::runtime_error("Input file is empty");
+  }
 
   auto freq = HuffmanTree::buildFrequency(text);
   Node *root = HuffmanTree::buildTree(freq);
@@ -18,6 +25,9 @@ void Compressor::compress(const std::string &inputFile,
   HuffmanTree::buildCodes(root, "", codes);
   std::string encoded = HuffmanTree::encodeText(text, codes);
   std::ofstream out(outputFile, std::ios::binary);
+  if (!out.is_open()) {
+    throw std::runtime_error("Cannot open output file: " + outputFile);
+  }
 
   int size = static_cast<int>(freq.size());
   out.write(reinterpret_cast<char *>(&size), sizeof(int));
