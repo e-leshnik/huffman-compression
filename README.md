@@ -86,3 +86,9 @@ The project uses:
 - clang-tidy for static analysis
 - AddressSanitizer and UndefinedBehaviorSanitizer for runtime checks
 - GitHub Actions for automatic build and test verification
+
+## Experimental Evaluation
+
+The project includes an experimental evaluation of compression ratio, compression time, and decompression time.
+Measurements were performed on several categories of input data, including literary text, source code, and already compressed image files.
+For each file, multiple runs were executed and the mean execution time and standard deviation were calculated.
