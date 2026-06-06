@@ -60,13 +60,13 @@ cmake --build .
 ## Usage
 
 ```
-./huffman_archiver compress <input_file> <output_file>
-./huffman_archiver decompress <input_file> <output_file>
+./build/huffman_archiver compress <input_file> <output_file>
+./build/huffman_archiver decompress <input_file> <output_file>
 ```
 Example:
 ```
-./huffman_archiver compress input.txt compressed.bin
-./huffman_archiver decompress compressed.bin output.txt
+./build/huffman_archiver compress input.txt compressed.bin
+./build/huffman_archiver decompress compressed.bin output.txt
 ```
 
 ## Running Tests
@@ -90,5 +90,5 @@ The project uses:
 ## Experimental Evaluation
 
 The project includes an experimental evaluation of compression ratio, compression time, and decompression time.
-Measurements were performed on several categories of input data, including literary text, source code, and already compressed image files.
+Measurements were performed on several categories of input data (located in experiments/input), including literary text, source code, and already compressed image files.
 For each file, multiple runs were executed and the mean execution time and standard deviation were calculated.

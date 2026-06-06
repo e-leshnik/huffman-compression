@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     Decompressor::decompress(argv[2], argv[3]);
   } else {
     std::cout << "Unknown mode\n";
+    return 1;
   }
 
   return 0;
